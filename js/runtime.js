@@ -25,7 +25,7 @@ setInterval(() => {
     }//秒
     //早上7点到晚上10点营业(这里修改为自己博客信息)
     
-currentTimeHtml ="<img class='boardsign' src='https://img.shields.io/badge/糖果屋-营业中-6adea8?style=social&logo=cakephp' title='距离百年老店也就差不到一百年~'><div id='runtime'>" + 's4ndw1ch 的糖果屋已经存在  ' + time[1] + ' 天 ' + time[2] + ' 小时 ' + time[3] + ' 分 ' + time[4] + ' 秒 ' + '</div>';
+currentTimeHtml ="<img class='boardsign' src='https://img.shields.io/badge/糖果屋-营业中-6adea8?style=social&logo=cakephp' title='距离百年老店也就差不到一百年~'><div id='runtime'>" + 's4ndw1ch-的糖果屋已经存在  ' + time[1] + ' 天 ' + time[2] + ' 小时 ' + time[3] + ' 分 ' + time[4] + ' 秒 ' + '</div>';
     
    
     

